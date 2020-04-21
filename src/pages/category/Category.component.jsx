@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Category.styles.scss';
 
 import {
@@ -21,68 +21,77 @@ import Spinner from '../../components/spinner/Spinner.component';
 import LoadMoreBtn from '../../components/load-more-btn/LoadMoreBtn.component';
 import Footer from '../../components/footer/Footer.component';
 
-class Category extends React.Component{
-    constructor(){
-        super();
-        this.state = {
-            ready: false
-        }
-    }
+const Category = ({ resetMovies, match, data, loading, loadMoreMovies }) => {
+    const [ready, setReady] = useState(false);
+    // constructor(){
+    //     super();
+    //     this.state = {
+    //         ready: false
+    //     }
+    // }
 
-    componentDidMount(){
-        if(sessionStorage.homeState){
-            console.log("Getting from session storage");
-            this.props.resetMovies(JSON.parse(sessionStorage.homeState));
-            setTimeout(this.stopLoading, 100);
-        }
-    }
-
-    stopLoading = () => {
-        this.setState({
-            ready: true
-        });
+    // componentDidMount(){
+    //     if(sessionStorage.homeState){
+    //         console.log("Getting from session storage");
+    //         this.props.resetMovies(JSON.parse(sessionStorage.homeState));
+    //         setTimeout(this.stopLoading, 100);
+    //     }
+    // }
+    
+    const stopLoading = () => {
+        setReady(true);
+        // this.setState({
+        //     ready: true
+        // });
     };
 
-    render(){
-        const { match, data, loading, loadMoreMovies } = this.props;
-        const { currentPage, totalPages } = data;
-        let category = match.params.categoryId;
-        let endpoint;
-        const popularEndpoint = `${POPULAR_BASE_URL}&page=${data.currentPage + 1}`;
-        const upcomingEndpoint = `${UPCOMING_BASE_URL}&page=${data.currentPage + 1}`;
-        const nowPlayingEndpoint = `${NOW_PLAYING_BASE_URL}&page=${data.currentPage + 1}`;
-        const topRatedEndpoint = `${TOP_RATED_BASE_URL}&page=${data.currentPage + 1}`;
+    useEffect(() => {
+        if(sessionStorage.homeState){
+            console.log("Getting from session storage");
+            resetMovies(JSON.parse(sessionStorage.homeState));
+            setTimeout(stopLoading, 100);
+        }
+    }, []);
 
-        if(category === 'popular') endpoint = popularEndpoint;
-        else if(category === 'upcoming') endpoint = upcomingEndpoint;
-        else if(category === 'now-playing') endpoint = nowPlayingEndpoint;
-        else if(category === 'top-rated') endpoint = topRatedEndpoint;
-        if(!this.state.ready) return <Spinner/>
-        return(
-            <React.Fragment>
-                <Grid header={`${category}`}>
-                    {category === 'now-playing' ? category = 'now_playing' : null, 
-                    category === 'top-rated' ? category = 'top_rated' : null, 
-                    data.movies[category].map(movie => (
-                        <MovieThumb
-                            key={movie.id}
-                            image={movie.poster_path ? `${IMAGE_BASE_URL}${POSTER_SIZE}${movie.poster_path}` : NoImage}
-                            movieName={movie.original_title}
-                            clickable
-                            movieId={movie.id}
-                        />
-                    ))}
-                </Grid>
-    
-                {loading && <Spinner/>}
-    
-                {currentPage < totalPages && !loading && (
-                    <LoadMoreBtn text="Load More" callback={() => loadMoreMovies(endpoint, category)}/>
-                )}
-                <Footer/>
-            </React.Fragment>
-        );
-    }
+
+    // const { match, data, loading, loadMoreMovies } = this.props;
+    const { currentPage, totalPages } = data;
+    let category = match.params.categoryId;
+    let endpoint;
+    const popularEndpoint = `${POPULAR_BASE_URL}&page=${data.currentPage + 1}`;
+    const upcomingEndpoint = `${UPCOMING_BASE_URL}&page=${data.currentPage + 1}`;
+    const nowPlayingEndpoint = `${NOW_PLAYING_BASE_URL}&page=${data.currentPage + 1}`;
+    const topRatedEndpoint = `${TOP_RATED_BASE_URL}&page=${data.currentPage + 1}`;
+
+    if(category === 'popular') endpoint = popularEndpoint;
+    else if(category === 'upcoming') endpoint = upcomingEndpoint;
+    else if(category === 'now-playing') endpoint = nowPlayingEndpoint;
+    else if(category === 'top-rated') endpoint = topRatedEndpoint;
+    if(!ready) return <Spinner/>
+    return(
+        <React.Fragment>
+            <Grid header={`${category}`}>
+                {category === 'now-playing' ? category = 'now_playing' : null, 
+                category === 'top-rated' ? category = 'top_rated' : null, 
+                data.movies[category].map(movie => (
+                    <MovieThumb
+                        key={movie.id}
+                        image={movie.poster_path ? `${IMAGE_BASE_URL}${POSTER_SIZE}${movie.poster_path}` : NoImage}
+                        movieName={movie.original_title}
+                        clickable
+                        movieId={movie.id}
+                    />
+                ))}
+            </Grid>
+
+            {loading && <Spinner/>}
+
+            {currentPage < totalPages && !loading && (
+                <LoadMoreBtn text="Load More" callback={() => loadMoreMovies(endpoint, category)}/>
+            )}
+            <Footer/>
+        </React.Fragment>
+    );
 };
 
 const mapStateToProps = state => ({
