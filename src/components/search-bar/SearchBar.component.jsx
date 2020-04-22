@@ -6,12 +6,6 @@ import {searchMovies} from '../../redux/redux-home/home.actions';
 
 const SearchBar = ({ searchMovies }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    // constructor(){
-    //     super();
-    //     this.state={
-    //         searchTerm: ''
-    //     }
-    // }
 
     const timeOut = useRef(null);
 
@@ -25,13 +19,7 @@ const SearchBar = ({ searchMovies }) => {
     }, [searchTerm]);
 
     const doSearch = e => {
-        // clearTimeout(timeOut.current);
         setSearchTerm(e.target.value);
-        // this.setState({[e.target.name]: e.target.value});
-
-        // timeOut.current = setTimeout(() => {
-        //     searchMovies(searchTerm);
-        // }, 500);
     }
     return(
         <div className="searchbar">
